@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <title>PAC 329 Jeopardy Game</title>
+  
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="quizgame.js"></script>
+	<script src="QandA.js"></script>
+
+
+    <!-- This is needed if using jquery dialogs.
+      <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+      <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    -->
+
+    <script>
+        // Once the document loads, hide the Q and A window.
+        $(function() {            
+            initialize();
+        });
+	</script>
+
+    <style type="text/css">
+        #wrapper {
+            position:relative; 
+            margin: auto; 
+            width: 800px;
+            text-align: center;
+        }
+        
+        input { padding: 10px; }
+    	body { font-family: sans-serif; }
+        a { color: black; }
+        a:visited { color: black; }
+
+        table { 
+            font-size: 18px; 
+            font-family: sans-serif; 
+            margin: auto;
+        }
+        td, th { padding: 2px; }
+        
+        /* Style the table used for the big board of categories */
+        table.board { 
+            font-size: 18px; 
+            font-family: sans-serif; 
+            border: solid orange 2px;
+            border-collapse: collapse;
+            margin: auto;
+        }
+
+        table.board td, .board th {             
+            border: solid orange 2px;
+            padding: 10px;
+        }
+        table.board th { 
+            background-color: #dddddd;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        header table { border: none; width: 100%; }
+        header th, header td { border: none; }
+
+        /* Fade out final question button */
+        #score input[type=button]
+        {
+            opacity: .3;
+        }
+        
+        /***********************************************
+         * The final wager table for columnizing wagers.
+         ***********************************************/
+
+        #finalwager td {
+            padding: 5px;
+        }
+
+        /*********************************
+         * The Question and Answer window. 
+         *********************************/
+
+        #qawindow, #dialog {
+            position: absolute;
+            z-index: 99;    /* Make sure the QA window is above everything else */
+            left: -5px;     /* Make up for the box shadow and border */
+            width: 100%;    /* Relative to the wrapper div */
+            height: 90%;    /* Relative to the wrapper div */
+            
+            background-color: lightgray;
+            border: solid black 5px;
+            box-shadow: 10px 10px 5px #888888;
+            -webkit-box-shadow: 10px 10px 5px #888888;
+            border-radius:8px;
+        }
+        
+        #timer { 
+            width: 100px; 
+            height: 100px; 
+            background-color: black;
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            float:right;
+            font-size: 5em;
+            text-align: center;
+        }
+
+        #qawindow #header
+        {
+            font-size: 1.5em;
+            font-weight: bolder;
+            padding: 20px;
+        }
+        #qawindow #answer, #qawindow #question
+        {
+            font-size: 1.2em;
+            padding: 20px;
+        }
+        
+        /*******************************
+         * Style buttons and text boxes.
+         *******************************/
+        
+        input[type=button] {
+            background-color:orange;
+            display:inline-block;
+            color:#000;
+            margin: 3px;
+
+            /* Shadow */
+            -webkit-box-shadow: 0px 0px 2px 2px #000;
+            box-shadow: 0px 0px 2px 2px #000;
+            
+            /* Border */
+            -webkit-border-radius:6px;
+            border-radius:4px;
+            border:1px solid #eda933;
+        }
+        
+        input[type=button]:hover {
+            background-color:#d29105;
+        }
+        
+        input[type=button]:active {
+            position:relative;
+            top:1px;
+        }
+        
+        /* When hovering over right/wrong buttons use color indicators */
+        input:hover.btnRight{ background-color: green; }
+        input:hover.btnWrong{ background-color: red; }
+
+        input[type=text] {
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            padding:5px;
+        }
+        input[type=text]:focus { 
+            border-color: orange;
+            box-shadow: 0 0 10px orange;
+            -webkit-box-shadow: 0 0 10px orange;
+        }
+        
+    </style>
+</head>
+
+<body>
+<div id="wrapper">
+    
+    <header>
+        <table><tr>
+
+            <!-- Display the logo at the top left -->
+            <td align=left width="33%">
+                <a href=""> 
+                    <img id="IMG1" src="logo.jpg" >
+                </a>
+            </td>
+            
+            <!-- Display the main title -->
+            <td nowrap width="33%" align="center">
+                <h1>
+                    <script type="text/javascript"> 
+                        document.write(Title);
+                    </script>
+                </h1>
+            </td>
+
+            <!-- Just here to make sure the middle stays centered -->
+            <td width="33%"></td>
+
+        </tr></table>
+    </header>
+
+    <!-- Show the "Final Question" or whatever. -->
+    <div id="dialog">
+        <header>
+            <h1 id="dlgtitle">title</h1>
+        </header>
+        <section>
+            <div id="dlgbody"></div>
+            <div id="dlgokcancel"></div>
+        </section>
+    </div>
+    
+    
+    <!-- This is the div that comes up when a category is clicked on -->
+    <div id="qawindow">
+        <div id="timer">25</div>
+        <div style="text-align: center">
+            
+            <div id="header"> 
+                <span id="category"></span> for <span id="wager"></span> 
+            </div>
+
+            <div id="answer"></div>
+            <div id="reveal">
+                <input type="button" value="Reveal Question" onclick="revealQuestion();"/> 
+                <input type="button" value="Cancel Question" onclick="cancelQuestion();" />
+            </div>
+            
+            <div id="question"></div>
+            
+            <div id="controls"></div>
+        </div>  <!-- Centering div -->
+    </div>  <!-- qa window -->
+    
+    
+    <!-- This is the main board that shows the categories and amounts -->
+    <table class="board">
+            <tr>
+                <!-- Draw the titles from the "Titles" array in itpardy.js -->
+                <script>
+                    // Make all columns the same width.
+                    var thWidth = "width:" + (100/NumCategories) + "%";
+
+                    for (var title=0; title<NumCategories; title++)
+                    {
+                        document.write("<th style='" + thWidth + "'>" + 
+                            Titles[title] + "</th>");
+                    }
+                 </script>
+            </tr>
+            
+            <div id="answers">
+                <!-- Draw the table rows and columns -->
+                <script type="text/javascript">
+                    // Decide where the Daily Double will be. 
+                    // (Only use the last few rows so the team will have some money to wager)
+                    var ddCol = getRandom(1, NumCategories);
+                    var ddRow = getRandom(NumQuestionsPerCategory -1, NumQuestionsPerCategory);
+                    var dd=0;
+
+                    for (i=1; i<=NumQuestionsPerCategory; i++)
+                    {
+                        document.write("<tr>");
+                        for (j=1; j<=NumCategories; j++)
+                        {
+                            // Set daily double?
+                            dd = (j == ddCol && i == ddRow) ? 1 : 0;
+
+                            document.write("<td align=center id='a" + j + "" + i + "'><strong>" +
+                                "<a id='b" + j + "" + i + "' " +
+                                "href='javascript:selectItem("+j+","+i+","+dd+");'>" + (i*SQV) + "</a>" +
+                                "</strong></td>");
+                        }
+                        document.write("</tr>");
+                    }
+                </script>
+            </div>
+    </table>
+
+    <br><br>
+
+    <!-- Display the score -->
+    <div>
+        <table id='score' class='board'>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
