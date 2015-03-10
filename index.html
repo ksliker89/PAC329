@@ -17,13 +17,15 @@
 
     <script>
         // Once the document loads, hide the Q and A window.
-        $(function() {            
+        $(function() 
+	{            
             initialize();
         });
 	</script>
 
     <style type="text/css">
-        #wrapper {
+        #wrapper 
+	{
             position:relative; 
             margin: auto; 
             width: 800px;
@@ -35,7 +37,8 @@
         a { color: black; }
         a:visited { color: black; }
 
-        table { 
+        table 
+	{ 
             font-size: 18px; 
             font-family: sans-serif; 
             margin: auto;
@@ -43,7 +46,8 @@
         td, th { padding: 2px; }
         
         /* Style the table used for the big board of categories */
-        table.board { 
+        table.board 
+	{ 
             font-size: 18px; 
             font-family: sans-serif; 
             border: solid orange 2px;
@@ -51,11 +55,13 @@
             margin: auto;
         }
 
-        table.board td, .board th {             
+        table.board td, .board th 
+	{             
             border: solid orange 2px;
             padding: 10px;
         }
-        table.board th { 
+        table.board th 
+	{ 
             background-color: #dddddd;
             font-weight: bold;
             text-align: center;
@@ -74,7 +80,8 @@
          * The final wager table for columnizing wagers.
          ***********************************************/
 
-        #finalwager td {
+        #finalwager td 
+	{
             padding: 5px;
         }
 
@@ -82,7 +89,8 @@
          * The Question and Answer window. 
          *********************************/
 
-        #qawindow, #dialog {
+        #qawindow, #dialog 
+	{
             position: absolute;
             z-index: 99;    /* Make sure the QA window is above everything else */
             left: -5px;     /* Make up for the box shadow and border */
@@ -96,7 +104,8 @@
             border-radius:8px;
         }
         
-        #timer { 
+        #timer 
+	{ 
             width: 100px; 
             height: 100px; 
             background-color: black;
@@ -124,7 +133,8 @@
          * Style buttons and text boxes.
          *******************************/
         
-        input[type=button] {
+        input[type=button] 
+	{
             background-color:orange;
             display:inline-block;
             color:#000;
